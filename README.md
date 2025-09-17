@@ -107,6 +107,7 @@ Make sure to replace `"/path/to/SAM_FIT_SUGAR_PATH"` with the correct path where
 Once the paths are set, you can run the pipeline with the following command:
 
 ```bash
+cd sam_fit_sugar
 ./run_pipeline.sh your_dataset_name
 ```
 
@@ -116,9 +117,55 @@ This will execute the **SAM2** and **SuGaR** pipelines for the specified dataset
 
 
 
+# SAM2 + SuGaR Pipeline for 3D Reconstruction
 
-### 4. Run the project
+## Overview
 
-Once you have everything set up, you can run the **sam\_fit\_sugar** system to process images and generate background-free 3D meshes. If you have custom input files, you can run the program accordingly (add specific instructions here based on your project).
+This project uses the SAM2 and SuGaR frameworks for 3D reconstruction of images, generating high-quality models with background removal. By clicking on significant points in an image, the SAM2 model generates a mask that isolates the object of interest.
 
----
+## Workflow
+
+### 1. Image Loading and Point Annotation
+
+The process starts by loading an image. The user can click on the image to add points of interest:
+
+- **Left-click** to add **positive points** (marked in **green**).
+- **Right-click** to add **negative points** (marked in **red**).
+
+The tool allows the user to select specific regions of the image, which will later be used to create a mask.
+
+#### Example Image (before mask creation):
+![Example Image](/home/ilias/sam_fit_sugar/readme_images/image_1747083940.jpg)
+
+### 2. Generating the Mask with SAM2
+
+Once enough points are added, the SAM2 model generates a **mask** that isolates the object of interest. The mask is a binary image that shows the identified area.
+
+#### Mask Output:
+![Mask Output](readme_images/image_1747083940_mask.png)
+
+### 3. Overlay of Mask on Image
+
+After the mask is created, it is applied to the original image, showing the object against a transparent or black background, as shown below:
+![Image overlay](readme_images/image_1747083940_overlay.png)
+
+#### Image with Mask:
+![Image with Mask, black backround](readme_images/image_1747083940_mask_rgb.png)
+
+### 4. Final Output
+
+The final result is an image where the object is isolated from the background, ready for further processing or 3D reconstruction.
+
+#### Final Image (Object Isolated):
+![Final Image](readme_images/image_1747083940_without_backround.png)
+
+## Steps to Use
+
+1. **Clone the repository** and set up the environment.
+2. **Load your images** into the appropriate directory.
+3. **Run the pipeline** using the `run_pipeline.sh` script.
+4. **Annotate the points** by clicking on the important areas of the image.
+5. **Generate the mask**, which will be saved for further use.
+
+For more details, check the documentation in the repository or the command line help.
+
