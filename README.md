@@ -88,6 +88,33 @@ SAM2-Docker/
 
 These images will now be ready to be processed by the SAM2-Docker system.
 
+---
+
+
+### 5. Set environment variables for the paths
+Before running the pipeline, you need to set up the environment variables for the paths of the **SAM2-Docker** and **SuGaR-Docker** repositories.
+
+Set the paths for **sam_fit_sugar**  by adding this line to your terminal:
+
+```bash
+export SAM_FIT_SUGAR_PATH="/path/to/SAM_FIT_SUGAR_PATH"
+```
+
+Make sure to replace `"/path/to/SAM_FIT_SUGAR_PATH"` with the correct path where the repositorie is located on your system.
+
+### 6. Run the pipeline
+
+Once the paths are set, you can run the pipeline with the following command:
+
+```bash
+./run_pipeline.sh your_dataset_name
+```
+
+This will execute the **SAM2** and **SuGaR** pipelines for the specified dataset.
+
+---
+
+
 
 
 ### 4. Run the project
