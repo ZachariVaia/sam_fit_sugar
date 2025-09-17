@@ -47,6 +47,49 @@ To install **SuGaR**, follow these steps:
    ```
 
 
+
+### 4. Prepare dataset
+
+You need to prepare the dataset by creating a **data** folder inside the **SAM2-Docker** directory. Inside this **data** folder, you will store the images with a `.jpg` extension. The images should be placed in a subfolder named after your dataset.
+
+Follow these steps:
+
+1. Navigate to the **SAM2-Docker** directory:
+
+   ```bash
+   cd SAM2-Docker
+   ```
+
+2. Create the **data** folder if it doesn't already exist:
+
+   ```bash
+   mkdir -p data
+   ```
+
+3. Create a folder inside **data** to store your images. Name the folder after your dataset, for example:
+
+   ```bash
+   mkdir -p data/your_dataset_name
+   ```
+
+4. Place your `.jpg` images into the **your\_dataset\_name** folder.
+
+
+Now, your **SAM2-Docker** directory should have the following structure:
+
+```
+SAM2-Docker/
+├── data/
+│   └── your_dataset_name/
+│       ├── image1.jpg
+│       ├── image2.jpg
+│       └── ...
+```
+
+These images will now be ready to be processed by the SAM2-Docker system.
+
+
+
 ### 4. Run the project
 
 Once you have everything set up, you can run the **sam\_fit\_sugar** system to process images and generate background-free 3D meshes. If you have custom input files, you can run the program accordingly (add specific instructions here based on your project).
