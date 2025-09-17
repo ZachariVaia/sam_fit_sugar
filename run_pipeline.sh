@@ -35,6 +35,7 @@ cd "$SAM2_DOCKER_PATH"
 
 GUI=1 ./run_sam2.sh "$DATASET_NAME"
 
+chmod -R 777 $SAM2_DOCKER_PATH
 cd "$SAM_FIT_SUGAR_PATH"
 # Change directory and run the SuGaR pipeline
 echo "[*] Running SuGaR pipeline for dataset: $DATASET_NAME..."
@@ -42,6 +43,8 @@ echo "[*] Running SuGaR pipeline for dataset: $DATASET_NAME..."
 # mv "$SAM_FIT_SUGAR_PATH/run_sugar_pipeline_with_sam.sh" "$SUGAR_DOCKER_PATH/"
 # mv "$SAM_FIT_SUGAR_PATH/Dockerfile_final" "$SUGAR_DOCKER_PATH/"
 cd "$SUGAR_DOCKER_PATH"
+chmod -R 777 $SUGAR_DOCKER_PATH
+
 ./run_sugar_pipeline_with_sam.sh "$DATASET_NAME"
 
 echo "[*] Pipeline completed successfully!"
