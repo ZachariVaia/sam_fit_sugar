@@ -133,9 +133,10 @@ The process starts by loading an image. The user can click on the image to add p
 - **Right-click** to add **negative points** (marked in **red**).
 
 The tool allows the user to select specific regions of the image, which will later be used to create a mask.
+![Example Image](readme_images/image_points.png)
 
 #### Example Image (before mask creation):
-![Example Image](/home/ilias/sam_fit_sugar/readme_images/image_1747083940.jpg)
+![Example Image](readme_images/image_1747083940.jpg)
 
 ### 2. Generating the Mask with SAM2
 
