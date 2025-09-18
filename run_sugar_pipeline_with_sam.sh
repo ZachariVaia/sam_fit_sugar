@@ -1,16 +1,30 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-DATASET_NAME=${1:?Usage: $0 DATASET_NAME}
-REFINEMENT_TIME=${REFINEMENT_TIME:-short}
+# --- safe defaults for paths (work even with set -u) ---
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+: "${SUGAR_DOCKER_PATH:=$SCRIPT_DIR}"
+: "${SAM_FIT_SUGAR_PATH:=$(cd "$SCRIPT_DIR/.." && pwd)}"
+: "${SAM2_DOCKER_PATH:=$SAM_FIT_SUGAR_PATH/SAM2-Docker}"
 
-# --- Silence everything to a log ---
+# --- args ---
+DATASET_NAME="${DATASET_NAME:-${1:-}}"
+: "${DATASET_NAME:?Usage: $0 DATASET_NAME}"
+REFINEMENT_TIME="${REFINEMENT_TIME:-short}"
+
+# --- logging ---
 LOGDIR="$SUGAR_DOCKER_PATH/logs"
 mkdir -p "$LOGDIR"
 LOGFILE="$LOGDIR/${DATASET_NAME}_$(date +%Y%m%d_%H%M%S).log"
 
-# Keep the original stdout/stderr
+# keep fds & traps...
 exec 3>&1 4>&2
+restore_fds() { exec 1>&3 2>&4; }
+on_error(){ restore_fds; echo "STATUS: ERROR" >&2; echo "LOG: $LOGFILE" >&2; exit 1; }
+trap on_error ERR
+trap restore_fds EXIT
+exec >"$LOGFILE" 2>&1
+
 restore_fds() { exec 1>&3 2>&4; }
 
 on_error() {
@@ -59,61 +73,6 @@ mkdir -p "$SUGAR_DOCKER_PATH/data/${DATASET_NAME}_output/images_sugar_black"
 mkdir -p "$SUGAR_DOCKER_PATH/data/${DATASET_NAME}_output/input_colmap/masks"
 mkdir -p "$SUGAR_DOCKER_PATH/data/${DATASET_NAME}_output/distorted"
 mkdir -p "$SUGAR_DOCKER_PATH/data/${DATASET_NAME}_output/input"
-
-# sudo chown -R $(id -u):$(id -g) ~/SuGaR_Docker/SuGaR/data/${DATASET_NAME}
-# chmod -R 775 ~/SuGaR_Docker/SuGaR/data/${DATASET_NAME}
-
-# sudo chown -R $(id -u):$(id -g) ~/SuGaR_Docker/SuGaR/data/${DATASET_NAME}"_output"
-# chmod -R 775 ~/SuGaR_Docker/SuGaR/data/${DATASET_NAME}"_output"
-
-# sudo chown -R $(id -u):$(id -g) ~/SuGaR_Docker/SuGaR/data/${DATASET_NAME}"_output"/input_colmap/images
-# chmod -R 775 ~/SuGaR_Docker/SuGaR/data/${DATASET_NAME}"_output"/input_colmap/images
-
-
-# sudo chown -R $(id -u):$(id -g) ~/SuGaR_Docker/SuGaR/data/${DATASET_NAME}"_output"/images_sugar
-# chmod -R 775 ~/SuGaR_Docker/SuGaR/data/${DATASET_NAME}"_output"/images_sugar
-
-# sudo chown -R $(id -u):$(id -g) ~/SuGaR_Docker/SuGaR/data/${DATASET_NAME}"_output"/images_sugar_black
-# chmod -R 775 ~/SuGaR_Docker/SuGaR/data/${DATASET_NAME}"_output"/images_sugar_black
-
-# sudo chown -R $(id -u):$(id -g) ~/SuGaR_Docker/SuGaR/data/${DATASET_NAME}"_output"/input_colmap/masks
-# chmod -R 775 ~/SuGaR_Docker/SuGaR/data/${DATASET_NAME}"_output"/input_colmap/masks
-
-# sudo chown -R $(id -u):$(id -g) ~/SuGaR_Docker/SuGaR/data/${DATASET_NAME}"_output"/input
-# chmod -R 775 ~/SuGaR_Docker/SuGaR/data/${DATASET_NAME}"_output"/input
-# # Set permissions for the directories
-# sudo chown -R $(id -u):$(id -g) "$SUGAR_DOCKER_PATH/data/${DATASET_NAME}"
-# chmod -R 775 "$SUGAR_DOCKER_PATH/data/${DATASET_NAME}"
-
-# sudo chown -R $(id -u):$(id -g) "$SUGAR_DOCKER_PATH/data/${DATASET_NAME}_output"
-# chmod -R 775 "$SUGAR_DOCKER_PATH/data/${DATASET_NAME}_output"
-
-# sudo chown -R $(id -u):$(id -g) "$SUGAR_DOCKER_PATH/data/${DATASET_NAME}_output/input_colmap/images"
-# sudo chown -R $(id -u):$(id -g) "$SUGAR_DOCKER_PATH/data/${DATASET_NAME}_output/images_sugar"
-# sudo chown -R $(id -u):$(id -g) "$SUGAR_DOCKER_PATH/data/${DATASET_NAME}_output/images_sugar_black"
-# sudo chown -R $(id -u):$(id -g) "$SUGAR_DOCKER_PATH/data/${DATASET_NAME}_output/input_colmap/masks"
-
-# chmod -R 775 "$SUGAR_DOCKER_PATH/data/${DATASET_NAME}_output/input_colmap/images"
-# chmod -R 775 "$SUGAR_DOCKER_PATH/data/${DATASET_NAME}_output/images_sugar"
-# chmod -R 775 "$SUGAR_DOCKER_PATH/data/${DATASET_NAME}_output/images_sugar_black"
-# chmod -R 775 "$SUGAR_DOCKER_PATH/data/${DATASET_NAME}_output/input_colmap/masks"
-
-# sudo chown -R $(id -u):$(id -g) "$SAM2_DOCKER_PATH/outputs/${DATASET_NAME}/images"
-# chmod -R 775 "$SAM2_DOCKER_PATH/outputs/${DATASET_NAME}/images"
-
-# sudo chown -R $(id -u):$(id -g) "$SAM2_DOCKER_PATH/outputs/${DATASET_NAME}/images_masked"
-# chmod -R 775 "$SAM2_DOCKER_PATH/outputs/${DATASET_NAME}/images_masked"
-
-# sudo chown -R $(id -u):$(id -g) "$SAM2_DOCKER_PATH/outputs/${DATASET_NAME}/images_masked_black"
-# chmod -R 775 "$SAM2_DOCKER_PATH/outputs/${DATASET_NAME}/images_masked_black"
-
-# sudo chown -R $(id -u):$(id -g) "$SAM2_DOCKER_PATH/outputs/${DATASET_NAME}/maskes"
-# chmod -R 775 "$SAM2_DOCKER_PATH/outputs/${DATASET_NAME}/maskes"
-
-# sudo chown -R $(id -u):$(id -g) "$SUGAR_DOCKER_PATH/outputs/vazo/vanilla_gs"
-# sudo chown -R $(id -u):$(id -g) "$SUGAR_DOCKER_PATH/outputs/vazo/coarse"
-# chmod -R 775 "$SUGAR_DOCKER_PATH/outputs/vazo/vanilla_gs"
-# chmod -R 775 "$SUGAR_DOCKER_PATH/outputs/vazo/coarse"
 
 sudo chown -R $(id -u):$(id -g) "$SAM2_DOCKER_PATH"
 sudo chown -R $(id -u):$(id -g) "$SUGAR_DOCKER_PATH"

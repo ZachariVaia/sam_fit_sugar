@@ -70,16 +70,34 @@ cd "$SAM2_DOCKER_PATH"
 echo "[*] Running SAM2 pipeline for dataset: $DATASET_NAME..."
 GUI=1 DATASET_NAME="$DATASET_NAME" ./run_sam2.sh
 
-# --- run SuGaR (also pass DATASET_NAME as env) ---
-SUGAR_SCRIPT="$SUGAR_DOCKER_PATH/run_sugar_pipeline_with_sam.sh"
-if [ -f "$SUGAR_SCRIPT" ]; then
-  echo "[*] Running SuGaR pipeline for dataset: $DATASET_NAME..."
-  cd "$SUGAR_DOCKER_PATH"
-  DATASET_NAME="$DATASET_NAME" bash "$SUGAR_SCRIPT"
+
+# --- optionally stage helper files (copy, not move) ---
+if [ -f "$SAM_FIT_SUGAR_PATH/run_sugar_pipeline_with_sam.sh" ]; then
+  echo "[*] Copying run_sugar_pipeline_with_sam.sh to $SUGAR_DOCKER_PATH"
+  cp -f "$SAM_FIT_SUGAR_PATH/run_sugar_pipeline_with_sam.sh" "$SUGAR_DOCKER_PATH/"
+  chmod +x "$SUGAR_DOCKER_PATH/run_sugar_pipeline_with_sam.sh"
 else
-  echo "[*] $SUGAR_SCRIPT not found in $SUGAR_DOCKER_PATH"
-  exit 1
+  echo "[*] run_sugar_pipeline_with_sam.sh not found in $SAM_FIT_SUGAR_PATH (skipping copy)"
 fi
+if [ -f "$SAM_FIT_SUGAR_PATH/Dockerfile_final" ]; then
+  echo "[*] Copying Dockerfile to $SUGAR_DOCKER_PATH"
+  cp -f "$SAM_FIT_SUGAR_PATH/Dockerfile_final" "$SUGAR_DOCKER_PATH/"
+else
+  echo "[*] Dockerfile not found in $SAM_FIT_SUGAR_PATH (skipping copy)"
+fi
+
+# --- run SUGAR (pass DATASET_NAME as env) ---
+
+echo "[*] Running Sugar pipeline for dataset: $DATASET_NAME..."
+echo "[*] Running Sugar pipeline for dataset: $DATASET_NAME..."
+(
+  cd "$SUGAR_DOCKER_PATH"
+  DATASET_NAME="$DATASET_NAME" \
+  SUGAR_DOCKER_PATH="$SUGAR_DOCKER_PATH" \
+  SAM_FIT_SUGAR_PATH="$SAM_FIT_SUGAR_PATH" \
+  bash ./run_sugar_pipeline_with_sam.sh "$DATASET_NAME"
+)
+
 
 echo "[*] Pipeline completed successfully!"
 echo "LOG: $LOGFILE" >&3

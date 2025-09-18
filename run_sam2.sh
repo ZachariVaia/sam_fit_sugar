@@ -41,12 +41,12 @@ on_error() {
 trap on_error ERR
 trap restore_fds EXIT
 
-# Από εδώ και κάτω, ΟΛΑ πάνε μόνο στο log (σιωπή στην κονσόλα)
+
 exec >"$LOGFILE" 2>&1
 
-# -------------------- ORIGINAL LOGIC (ανεπηρέαστο) --------------------
+# -------------------- ORIGINAL LOGIC --------------------
 
-# Usage banner (για το log, όχι κονσόλα)
+
 echo "Usage: ./run_sam2.sh <dataset_name-or-subfolder>"
 
 # Build + Run SAM2 on a dataset
