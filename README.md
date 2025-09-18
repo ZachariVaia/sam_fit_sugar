@@ -11,7 +11,7 @@ To get started with this project, follow these simple steps:
 Run the following command to clone the repository to your local machine:
 
 ```bash
-git clone https://github.com/ZachariVaia/sam_fit_sugar.git
+git clone https://gitlab.com/ilsp-xanthi-medialab/textailes/wp4/t4.5/sam_fit_sugar.git
 ```
 
 ### 2. Navigate to the project directory
