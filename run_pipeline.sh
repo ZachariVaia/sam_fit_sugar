@@ -1,16 +1,22 @@
 #!/usr/bin/env bash
-set -e
-# Checks if the paths to the repositories are correct
-SAM_FIT_SUGAR_PATH="${SAM_FIT_SUGAR_PATH:-/path/to/SAM_FIT_SUGAR_PATH}"
+set -euo pipefail
+
+# --- args / dataset name (accept env or $1) ---
+DATASET_NAME="${DATASET_NAME:-${1:-}}"
+: "${DATASET_NAME:?Usage: $0 DATASET_NAME  (or export DATASET_NAME first)}"
+
+# --- resolve repo paths early ---
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SAM_FIT_SUGAR_PATH="${SAM_FIT_SUGAR_PATH:-$SCRIPT_DIR}"
 SAM2_DOCKER_PATH="${SAM2_DOCKER_PATH:-${SAM_FIT_SUGAR_PATH}/SAM2-Docker}"
 SUGAR_DOCKER_PATH="${SUGAR_DOCKER_PATH:-${SAM_FIT_SUGAR_PATH}/SuGaR-Docker/SuGaR}"
 
-# --- Silence everything to a log ---
+# --- logging (after we know DATASET_NAME) ---
 LOGDIR="$SAM_FIT_SUGAR_PATH/logs"
 mkdir -p "$LOGDIR"
 LOGFILE="$LOGDIR/${DATASET_NAME}_$(date +%Y%m%d_%H%M%S).log"
 
-# Keep the original stdout/stderr
+# Keep original stdout/stderr
 exec 3>&1 4>&2
 restore_fds() { exec 1>&3 2>&4; }
 
@@ -23,19 +29,16 @@ on_error() {
 trap on_error ERR
 trap restore_fds EXIT
 
-# From here on, all output goes to the log
+# From here on, tee output to log (and keep it on console too)
 exec >"$LOGFILE" 2>&1
 
-# Checks if a dataset name has been provided
-if [ -z "$1" ]; then
-  echo "Usage: $0 DATASET_NAME"
-  exit 1
-fi
 
-DATASET_NAME=$1
+# echo "[*] Root: $SAM_FIT_SUGAR_PATH"
+# echo "[*] SAM2: $SAM2_DOCKER_PATH"
+# echo "[*] SuGaR: $SUGAR_DOCKER_PATH"
+# echo "[*] Dataset: $DATASET_NAME"
 
-
-# Verifies if the paths are correct
+# --- sanity checks for paths ---
 if [ ! -d "$SAM2_DOCKER_PATH" ]; then
   echo "SAM2 Docker path not found: $SAM2_DOCKER_PATH"
   exit 1
@@ -46,36 +49,37 @@ if [ ! -d "$SUGAR_DOCKER_PATH" ]; then
   exit 1
 fi
 
-# Checks if the run_sam2.sh file exists before moving it
+# --- optionally stage helper files (copy, not move) ---
 if [ -f "$SAM_FIT_SUGAR_PATH/run_sam2.sh" ]; then
-  echo "[*] Moving run_sam2.sh to $SAM2_DOCKER_PATH"
-  mv "$SAM_FIT_SUGAR_PATH/run_sam2.sh" "$SAM2_DOCKER_PATH/"
+  echo "[*] Copying run_sam2.sh to $SAM2_DOCKER_PATH"
+  cp -f "$SAM_FIT_SUGAR_PATH/run_sam2.sh" "$SAM2_DOCKER_PATH/"
   chmod +x "$SAM2_DOCKER_PATH/run_sam2.sh"
 else
-  echo "[*] run_sam2.sh not found in $SAM_FIT_SUGAR_PATH"
+  echo "[*] run_sam2.sh not found in $SAM_FIT_SUGAR_PATH (skipping copy)"
 fi
 
-# Checks if the Dockerfile exists before moving it
 if [ -f "$SAM_FIT_SUGAR_PATH/Dockerfile" ]; then
-  echo "[*] Moving Dockerfile to $SAM2_DOCKER_PATH"
-  mv "$SAM_FIT_SUGAR_PATH/Dockerfile" "$SAM2_DOCKER_PATH/"
+  echo "[*] Copying Dockerfile to $SAM2_DOCKER_PATH"
+  cp -f "$SAM_FIT_SUGAR_PATH/Dockerfile" "$SAM2_DOCKER_PATH/"
 else
-  echo "[*] Dockerfile not found in $SAM_FIT_SUGAR_PATH"
+  echo "[*] Dockerfile not found in $SAM_FIT_SUGAR_PATH (skipping copy)"
 fi
 
-# Executes the SAM2 pipeline if everything is ready
+# --- run SAM2 (pass DATASET_NAME as env) ---
 cd "$SAM2_DOCKER_PATH"
 echo "[*] Running SAM2 pipeline for dataset: $DATASET_NAME..."
-./run_sam2.sh "$DATASET_NAME"
+GUI=1 DATASET_NAME="$DATASET_NAME" ./run_sam2.sh
 
-# Checks if the SuGaR script exists and executes it
-if [ -f "$SUGAR_DOCKER_PATH/run_sugar_pipeline_with_sam.sh" ]; then
+# --- run SuGaR (also pass DATASET_NAME as env) ---
+SUGAR_SCRIPT="$SUGAR_DOCKER_PATH/run_sugar_pipeline_with_sam.sh"
+if [ -f "$SUGAR_SCRIPT" ]; then
   echo "[*] Running SuGaR pipeline for dataset: $DATASET_NAME..."
   cd "$SUGAR_DOCKER_PATH"
-  ./run_sugar_pipeline_with_sam.sh "$DATASET_NAME"
+  DATASET_NAME="$DATASET_NAME" bash "$SUGAR_SCRIPT"
 else
-  echo "[*] run_sugar_pipeline_with_sam.sh not found in $SUGAR_DOCKER_PATH"
+  echo "[*] $SUGAR_SCRIPT not found in $SUGAR_DOCKER_PATH"
   exit 1
 fi
 
 echo "[*] Pipeline completed successfully!"
+echo "LOG: $LOGFILE" >&3
