@@ -107,7 +107,7 @@ Make sure to replace `"/path/to/SAM_FIT_SUGAR_PATH"` with the correct path where
 Once the paths are set, you can run the pipeline with the following command:
 
 ```bash
-cd sam_fit_sugar
+cd ..
 ./run_pipeline.sh your_dataset_name
 ```
 
