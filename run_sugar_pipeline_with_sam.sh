@@ -156,7 +156,7 @@ echo " DONE! COLMAP steps completed."
 
 
 # -------------------------------
-# # 3. Run conversion script
+# # 4. Run conversion script
 # # -------------------------------
 echo "[*] STEP 4: Running convert.py for dataset=${DATASET_NAME}..."
 sudo docker run --gpus all -it --rm \
@@ -249,6 +249,9 @@ echo " DONE! SuGaR training completed."
 # -------------------------------
 # 6. Extract textured mesh
 # -------------------------------
+# -------------------------------
+# 6. Extract textured mesh
+# -------------------------------
 echo "[*] STEP 4: Extracting textured mesh..."
 sudo docker run -it --rm --gpus all \
   -v "$SUGAR_DOCKER_PATH/data/${DATASET_NAME}_output:/app/data" \
@@ -268,6 +271,7 @@ sudo docker run -it --rm --gpus all \
 
     echo 'Using refined checkpoint: '\$REF
     cp -r /app/sugar_utils /tmp/sugar_utils
+    sed -i 's/RasterizeGLContext()/RasterizeCudaContext()/g' /tmp/sugar_utils/mesh_rasterization.py
     ln -sfn /app/output /tmp/output
     cd /tmp
     PYTHONPATH=/tmp:/app:/app/gaussian_splatting:\$PYTHONPATH \
@@ -278,6 +282,8 @@ sudo docker run -it --rm --gpus all \
         -o /app/output/refined_mesh/data \
         --square_size 8
 "
+
+
 
 restore_fds
 echo "STATUS: MESH DONE"
