@@ -74,6 +74,61 @@ mkdir -p "$SUGAR_DOCKER_PATH/data/${DATASET_NAME}_output/input_colmap/masks"
 mkdir -p "$SUGAR_DOCKER_PATH/data/${DATASET_NAME}_output/distorted"
 mkdir -p "$SUGAR_DOCKER_PATH/data/${DATASET_NAME}_output/input"
 
+# sudo chown -R $(id -u):$(id -g) ~/SuGaR_Docker/SuGaR/data/${DATASET_NAME}
+# chmod -R 775 ~/SuGaR_Docker/SuGaR/data/${DATASET_NAME}
+
+# sudo chown -R $(id -u):$(id -g) ~/SuGaR_Docker/SuGaR/data/${DATASET_NAME}"_output"
+# chmod -R 775 ~/SuGaR_Docker/SuGaR/data/${DATASET_NAME}"_output"
+
+# sudo chown -R $(id -u):$(id -g) ~/SuGaR_Docker/SuGaR/data/${DATASET_NAME}"_output"/input_colmap/images
+# chmod -R 775 ~/SuGaR_Docker/SuGaR/data/${DATASET_NAME}"_output"/input_colmap/images
+
+
+# sudo chown -R $(id -u):$(id -g) ~/SuGaR_Docker/SuGaR/data/${DATASET_NAME}"_output"/images_sugar
+# chmod -R 775 ~/SuGaR_Docker/SuGaR/data/${DATASET_NAME}"_output"/images_sugar
+
+# sudo chown -R $(id -u):$(id -g) ~/SuGaR_Docker/SuGaR/data/${DATASET_NAME}"_output"/images_sugar_black
+# chmod -R 775 ~/SuGaR_Docker/SuGaR/data/${DATASET_NAME}"_output"/images_sugar_black
+
+# sudo chown -R $(id -u):$(id -g) ~/SuGaR_Docker/SuGaR/data/${DATASET_NAME}"_output"/input_colmap/masks
+# chmod -R 775 ~/SuGaR_Docker/SuGaR/data/${DATASET_NAME}"_output"/input_colmap/masks
+
+# sudo chown -R $(id -u):$(id -g) ~/SuGaR_Docker/SuGaR/data/${DATASET_NAME}"_output"/input
+# chmod -R 775 ~/SuGaR_Docker/SuGaR/data/${DATASET_NAME}"_output"/input
+# # Set permissions for the directories
+# sudo chown -R $(id -u):$(id -g) "$SUGAR_DOCKER_PATH/data/${DATASET_NAME}"
+# chmod -R 775 "$SUGAR_DOCKER_PATH/data/${DATASET_NAME}"
+
+# sudo chown -R $(id -u):$(id -g) "$SUGAR_DOCKER_PATH/data/${DATASET_NAME}_output"
+# chmod -R 775 "$SUGAR_DOCKER_PATH/data/${DATASET_NAME}_output"
+
+# sudo chown -R $(id -u):$(id -g) "$SUGAR_DOCKER_PATH/data/${DATASET_NAME}_output/input_colmap/images"
+# sudo chown -R $(id -u):$(id -g) "$SUGAR_DOCKER_PATH/data/${DATASET_NAME}_output/images_sugar"
+# sudo chown -R $(id -u):$(id -g) "$SUGAR_DOCKER_PATH/data/${DATASET_NAME}_output/images_sugar_black"
+# sudo chown -R $(id -u):$(id -g) "$SUGAR_DOCKER_PATH/data/${DATASET_NAME}_output/input_colmap/masks"
+
+# chmod -R 775 "$SUGAR_DOCKER_PATH/data/${DATASET_NAME}_output/input_colmap/images"
+# chmod -R 775 "$SUGAR_DOCKER_PATH/data/${DATASET_NAME}_output/images_sugar"
+# chmod -R 775 "$SUGAR_DOCKER_PATH/data/${DATASET_NAME}_output/images_sugar_black"
+# chmod -R 775 "$SUGAR_DOCKER_PATH/data/${DATASET_NAME}_output/input_colmap/masks"
+
+# sudo chown -R $(id -u):$(id -g) "$SAM2_DOCKER_PATH/outputs/${DATASET_NAME}/images"
+# chmod -R 775 "$SAM2_DOCKER_PATH/outputs/${DATASET_NAME}/images"
+
+# sudo chown -R $(id -u):$(id -g) "$SAM2_DOCKER_PATH/outputs/${DATASET_NAME}/images_masked"
+# chmod -R 775 "$SAM2_DOCKER_PATH/outputs/${DATASET_NAME}/images_masked"
+
+# sudo chown -R $(id -u):$(id -g) "$SAM2_DOCKER_PATH/outputs/${DATASET_NAME}/images_masked_black"
+# chmod -R 775 "$SAM2_DOCKER_PATH/outputs/${DATASET_NAME}/images_masked_black"
+
+# sudo chown -R $(id -u):$(id -g) "$SAM2_DOCKER_PATH/outputs/${DATASET_NAME}/maskes"
+# chmod -R 775 "$SAM2_DOCKER_PATH/outputs/${DATASET_NAME}/maskes"
+
+# sudo chown -R $(id -u):$(id -g) "$SUGAR_DOCKER_PATH/outputs/vazo/vanilla_gs"
+# sudo chown -R $(id -u):$(id -g) "$SUGAR_DOCKER_PATH/outputs/vazo/coarse"
+# chmod -R 775 "$SUGAR_DOCKER_PATH/outputs/vazo/vanilla_gs"
+# chmod -R 775 "$SUGAR_DOCKER_PATH/outputs/vazo/coarse"
+
 sudo chown -R $(id -u):$(id -g) "$SAM2_DOCKER_PATH"
 sudo chown -R $(id -u):$(id -g) "$SUGAR_DOCKER_PATH"
 chmod -R 775 "$SUGAR_DOCKER_PATH"
@@ -156,7 +211,7 @@ echo " DONE! COLMAP steps completed."
 
 
 # -------------------------------
-# # 4. Run conversion script
+# # 3. Run conversion script
 # # -------------------------------
 echo "[*] STEP 4: Running convert.py for dataset=${DATASET_NAME}..."
 sudo docker run --gpus all -it --rm \
@@ -241,14 +296,13 @@ sudo docker run -it --rm --gpus all \
     -s /app/data \
     -r dn_consistency \
     --refinement_time $REFINEMENT_TIME \
-    --export_obj False
+    --export_obj False \
+    --postprocess_mesh True \
+    --postprocess_density_threshold 0.2 
 
 echo "======================================"
 echo " DONE! SuGaR training completed."
 
-# -------------------------------
-# 6. Extract textured mesh
-# -------------------------------
 # -------------------------------
 # 6. Extract textured mesh
 # -------------------------------
@@ -281,9 +335,9 @@ sudo docker run -it --rm --gpus all \
         -m \"\$REF\" \
         -o /app/output/refined_mesh/data \
         --square_size 8
+        --postprocess_density_threshold 0.2 \
+        --postprocess_mesh True
 "
-
-
 
 restore_fds
 echo "STATUS: MESH DONE"

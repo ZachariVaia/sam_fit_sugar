@@ -82,8 +82,12 @@ fi
 if [ -f "$SAM_FIT_SUGAR_PATH/Dockerfile_final" ]; then
   echo "[*] Copying Dockerfile to $SUGAR_DOCKER_PATH"
   cp -f "$SAM_FIT_SUGAR_PATH/Dockerfile_final" "$SUGAR_DOCKER_PATH/"
+  cp -f "$SAM_FIT_SUGAR_PATH/train.py" "$SUGAR_DOCKER_PATH/gaussian_splatting/train.py"
+
+
 else
   echo "[*] Dockerfile not found in $SAM_FIT_SUGAR_PATH (skipping copy)"
+  echo "[*] train.py not found in $SAM_FIT_SUGAR_PATH (skipping copy)"
 fi
 
 # --- run SUGAR (pass DATASET_NAME as env) ---
