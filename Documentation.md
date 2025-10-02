@@ -45,6 +45,11 @@
     * [Automated Point Annotation](#automated-point-annotation)
     * [Advanced 3D Reconstruction Techniques](#advanced-3d-reconstruction-techniques)
 13. [Conclusion](#conclusion)
+14. [Technical Details](#technical-details)
+
+    * [SAM2-Docker CUDA Version](#sam2-docker-cuda-version)
+    * [SuGaR CUDA Version](#sugar-cuda-version)
+    * [Docker Setup and Configuration](#docker-setup-and-configuration)
 
 ---
 
@@ -291,4 +296,72 @@ We aim to integrate advanced techniques such as **texture mapping**, **fine-grai
 ## Conclusion
 
 `sam_fit_sugar` offers a robust framework for background-free 3D reconstruction. By combining the segmentation power of SAM2 with the 3D modeling capabilities of SuGaR, this system provides an efficient solution for generating high-quality 3D models from 2D images.
+
+---
+
+## Technical Details
+
+### SAM2-Docker CUDA Version
+
+**SAM2-Docker** is designed to run on systems with NVIDIA GPUs that support **CUDA**. To ensure efficient execution, the following CUDA versions are supported:
+
+1. **CUDA 12.1**: This version of the Docker image supports the latest CUDA toolkit, providing the best performance for image segmentation tasks.
+
+   * To run with CUDA 12.1:
+
+     ```bash
+     docker run -it -v /tmp/.X11-unix:/tmp/.X11-unix  -e DISPLAY=$DISPLAY --gpus all peasant98/sam2:cuda-12.1 bash
+     ```
+
+2. **CUDA 12.6**: If you have a system with support for CUDA 12.6, you can use that version for improved performance.
+
+   * To run with CUDA 12.6:
+
+     ```bash
+     docker run -it -v /tmp/.X11-unix:/tmp/.X11-unix  -e DISPLAY=$DISPLAY --gpus all peasant98/sam2:latest bash
+     ```
+
+3. **NVIDIA Container Toolkit**: Ensure that the **NVIDIA Container Toolkit** is installed to use GPU acceleration:
+
+   ```bash
+   sudo apt-get install -y nvidia-docker2
+   sudo systemctl restart docker
+   ```
+
+### SuGaR CUDA Version
+
+**SuGaR** also leverages **CUDA** for faster Gaussian splatting and mesh reconstruction tasks. It supports the same versions of CUDA (11.x+) as SAM2.
+
+* **CUDA 12.1/12.6**: Ensure your system supports the corresponding CUDA version for best performance. Both CUDA 12.1 and 12.6 are fully supported.
+
+---
+
+### Docker Setup and Configuration
+
+1. **Install NVIDIA Docker**:
+   First, install **NVIDIA Docker** for GPU support in Docker containers.
+
+   ```bash
+   distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
+     && curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add - \
+     && curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+   sudo apt-get update
+   sudo apt-get install -y nvidia-docker2
+   sudo systemctl restart docker
+   ```
+
+2. **Run Containers**:
+   You can now run both **SAM2** and **SuGaR** with GPU support:
+
+   ```bash
+   docker run -it -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=$DISPLAY --gpus all peasant98/sam2:latest bash
+   ```
+
+3. **Building Custom Docker Images**:
+   If you need to customize Docker configurations, build your own image:
+
+   ```bash
+   docker build -t sam2:latest .
+   docker run -it -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=$DISPLAY --gpus all sam2:latest bash
+   ```
 
